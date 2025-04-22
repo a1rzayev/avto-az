@@ -13,19 +13,51 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(uuid())
-  email    String   @unique
-  password String
-  cars     Car[]   
+  id     String  @id @default(uuid())
+  name   String
+  email  String  @unique
+  cars   Car[]  
 }
 
 model Car {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   brand     String
   model     String
-  year      Int
   price     Float
-  imageUrl  String
-  owner     User     @relation(fields: [ownerId], references: [id])
-  ownerId   String
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+
+  favorites   Favorite[]   @relation("CarToFavorite")
+  cartItems   CartItem[]   @relation("CarToCart")
+  orderItems  OrderItem[]  @relation("CarToOrder")
+}
+
+model Favorite {
+  id      String  @id @default(uuid())
+  userId  String
+  carId   String
+  car     Car     @relation("CarToFavorite", fields: [carId], references: [id])
+}
+
+model CartItem {
+  id      String  @id @default(uuid())
+  userId  String
+  carId   String
+  car     Car     @relation("CarToCart", fields: [carId], references: [id])
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  userId    String
+  createdAt DateTime    @default(now())
+  total     Float
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id      String  @id @default(uuid())
+  orderId String
+  carId   String
+  car     Car     @relation("CarToOrder", fields: [carId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
 }
